@@ -1,7 +1,6 @@
-// Get individual blog
 let { blogs } = require('../services')
 
-const getBlogById = (req, res, next) => {
+const checkBlogExists = (req, res, next) => {
     const { params: { id }} = req
     
     const index = blogs.findIndex(item => item.id === Number(id))
@@ -20,4 +19,4 @@ const getBlogById = (req, res, next) => {
 }
 
 
-module.exports = { getBlogById }
+module.exports = { checkBlogExists }
