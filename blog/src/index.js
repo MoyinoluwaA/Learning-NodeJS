@@ -1,5 +1,6 @@
 const express = require('express')
 const router = require('./routes')
+const db = require('./db')
 
 const app = express()
 const port = 4000
@@ -14,6 +15,7 @@ app.use(express.urlencoded({
 app.get('/', (req, res) => {
     res.status(200).json({
         status: 'success',
+        code: 200,
         message: 'Welcome to my Blog API',
         data: []
     })
@@ -36,4 +38,15 @@ app.use((err, req, res, next) => {
     })
 })
 
-app.listen(port, () => console.log(`Server is running on port ${port}`))
+db.connect()
+.then((obj) => {
+    app.listen(port, () => {
+        obj.done()
+        console.log(`Server is running on port ${port}`)
+    })
+})
+.catch((error) => {
+    console.log(error.message)
+})
+
+module.exports = app

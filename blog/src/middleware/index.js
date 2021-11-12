@@ -1,11 +1,11 @@
-let { blogs } = require('../services')
+let { fetchBlog } = require('../services')
 
-const checkBlogExists = (req, res, next) => {
+const validateBlogById = async(req, res, next) => {
     const { params: { id }} = req
     
-    const index = blogs.findIndex(item => item.id === Number(id))
+    const [ blog ] = await fetchBlog(id)
   
-    if (index === -1) {
+    if (!blog) {
         return res.status(404).json({
             status: 'fail',
             message: 'Blog does not exist',
@@ -13,10 +13,10 @@ const checkBlogExists = (req, res, next) => {
         })
     } 
 
-    req.index = index
+    req.blog = blog
     req.id = id
     next()
 }
 
 
-module.exports = { checkBlogExists }
+module.exports = { validateBlogById }

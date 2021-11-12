@@ -1,4 +1,4 @@
-let { blogs, id } = require('../services')
+const { blogs, id, addBlog, fetchAllBlogs, updateBlogById, deleteBlogById } = require('../services')
 
 // Adding date
 const nowDate = new Date()
@@ -8,14 +8,12 @@ const date = nowDate.getFullYear()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getDat
 const createBlog = async(req, res, next) => {
     try {
         const { body } = req
-        const blog = {id, ...body, created_at: date}
-        blogs.push(blog)
-        id++
+        const [ newBlog ] = await addBlog(body)
 
         res.status(201).json({
             status: 'success',
             message: 'Added new blog',
-            data: blog
+            data: newBlog
         })
     
     } catch (error) {
@@ -25,6 +23,8 @@ const createBlog = async(req, res, next) => {
 
 const getBlogs = async(req, res, next) => {
     try {
+        const blogs = await fetchAllBlogs()
+
         res.status(200).json({
             status: 'success',
             message: 'Fetched all blogs',
@@ -36,14 +36,14 @@ const getBlogs = async(req, res, next) => {
     }
 }
 
-const getBlog = async(req, res, next) => {
+const getBlog = async(req, res) => {
     try {
-        const { index, id } = req
+        const { blog, id } = req
 
         res.status(200).json({
             status: 'success',
             message: `Found the blog with id ${id}`,
-            data: blogs[index]
+            data: blog
         })
 
     } catch (error) {
@@ -53,11 +53,9 @@ const getBlog = async(req, res, next) => {
 
 const updateBlog = async(req, res, next) => {
     try {
-        const { body } = req
-        const { index, id } = req
-        const updatedBlog = { id: Number(id), ...body, updated_at: date }
-        blogs[index] = updatedBlog
-
+        const { body, id } = req
+        const [ updatedBlog ] = await updateBlogById(body, id)
+    
         res.status(200).json({
             status: 'success',
             message: `Updated the blog with id ${id}`,
@@ -71,13 +69,13 @@ const updateBlog = async(req, res, next) => {
 
 const deleteBlog = async(req, res, next) => {
     try {
-        const { index, id } = req
-        blogs.splice(index, 1)
+        const { id } = req
+        const deletedBlog = await deleteBlogById(id)
 
         res.status(200).json({
             status: 'success',
             message: `Deleted the blog at index ${id}`,
-            data: []
+            data: deletedBlog
         })
 
     } catch (error) {
