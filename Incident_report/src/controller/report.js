@@ -11,10 +11,7 @@ const createIncidentReport = async(req, res) => {
         })
     }
     catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err.message
-        })
+        next(err)
     }
 }
 
@@ -29,17 +26,14 @@ const fetchAllIncidents = async(req, res) => {
         })
     }
     catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err.message
-        })
+        next(err)
     }
 }
 
 const fetchUserIncidents = async(req, res) => {
     try {
-        const { authorizedUser: { user_id } } = req
-        const userIncidentReports = await getUserIncident(user_id)
+        const { authorizedUser } = req
+        const userIncidentReports = await getUserIncident(authorizedUser)
 
         res.status(200).json({
             status: 'success',
@@ -48,10 +42,7 @@ const fetchUserIncidents = async(req, res) => {
         })
     }
     catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err.message
-        })
+        next(err)
     }
 }
 

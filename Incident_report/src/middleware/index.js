@@ -1,64 +1,46 @@
-const jwt = require('jsonwebtoken')
-const { getUser, validateRegisterInput, validateLoginInput, fetchWeather, validateReportInput } = require("../services")
+const { getUser, fetchWeather } = require("../services")
+const { validateToken } = require("../utils")
 
 const checkUserExistsRegister = async(req, res, next) => {
     try {
-        const { body } = req
-        const validated = validateRegisterInput(body)
-    
-        if (validated) {
-            const { email } = body
-            const [ user ] = await getUser(email)
-           
-            if (user) {
-                return res.status(401).json({
-                    status: 'fail',
-                    message: 'User already exists. Log in',
-                    data: []
-                })
-            }
-    
-            req.body = body
-            next()
+        const { body: { email } } = req
+        const [ user ] = await getUser(email)
+        
+        if (user) {
+            return res.status(401).json({
+                status: 'fail',
+                message: 'User already exists. Log in',
+                data: []
+            })
         }
+
+        next()
     } 
     catch (err) {
-        return res.status(400).json({
-            status: 'fail',
-            message: err.message,
-            data: []
-        })
+        next(err)
     }
 }
 
 const checkUserExistsLogin = async(req, res, next) => {
     try {
         const { body } = req
-        const validated = validateLoginInput(body)
-    
-        if (validated) {
-            const { email } = body
-            const [ user ] = await getUser(email)
-           
-            if (!user) {
-                return res.status(401).json({
-                    status: 'fail',
-                    message: 'Invalid credentials',
-                    data: []
-                })
-            }
-    
-            req.user = user
-            req.password = body.password
-            next()
+        const { email } = body
+        const [ user ] = await getUser(email)
+        
+        if (!user) {
+            return res.status(401).json({
+                status: 'fail',
+                message: 'Invalid credentials',
+                data: []
+            })
         }
+
+        req.user = user
+        req.password = body.password
+        next()
     } 
     catch (err) {
-        return res.status(400).json({
-            status: 'fail',
-            message: err.message,
-            data: []
-        })
+        next(err)
     }
 }
 
@@ -67,48 +49,56 @@ const verifyToken = async(req, res, next) => {
         var token = req.headers['x-access-token']
     
         if (!token)
-            throw new Error('No token provided.')
+            return res.status(403).json({
+                status: 'fail',
+                message: 'No token provided.'
+            })
         
-        const isAuthorized = await jwt.verify(token, process.env.TOKEN_KEY)
+        const tokenValidated = await validateToken(token)
     
-        if (!isAuthorized) 
-            throw new Error('Failed to authenticate token.')
+        if (!tokenValidated) 
+            return res.status(403).json({
+                status: 'fail',
+                message: 'Failed to authenticate token.'
+            })
         
-        req.authorizedUser = isAuthorized
+        const { email, user_id } = tokenValidated
+        const isAuthorized = await getUser(email)
+
+        if (!isAuthorized) 
+            return res.status(403).json({
+                status: 'fail',
+                message: 'Failed to authenticate token.'
+            })
+        
+        req.authorizedUser = user_id
         next()
     }
     catch (err) {
-        return res.status(403).json({
-            status: 'fail',
-            message: err.message
-        })
+        next(err)
     }
 }
 
 const getWeatherReport = async(req, res, next) => {
     try {
-        const { body, authorizedUser } = req
+        const { body, authorizedUser } = req        
+        const { city, country } = body
+
+        const weather = await fetchWeather(city, country)
+    
+        if (!weather) 
+            return res.status(404).json({
+                status: 'failed',
+                message: 'Could not fetch weather for city and country'
+            })
         
-        if (authorizedUser) {
-            const validated = await validateReportInput(body)
-            
-            if (validated) {
-                const { city, country } = body
-                const weather = await fetchWeather(city, country)
-                
-                const { user_id } = authorizedUser
-                req.weather = weather.data
-                req.user_id = user_id
-                next()
-            }
-        }
-        
+        const { user_id } = authorizedUser
+        req.weather = weather.data
+        req.user_id = user_id
+        next()
     }
     catch (err) {
-        return res.status(404).json({
-            status: 'failed',
-            message: err.message
-        })
+        next(err)
     }
 }
 
