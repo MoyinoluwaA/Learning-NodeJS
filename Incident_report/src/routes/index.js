@@ -1,8 +1,8 @@
 const express = require('express')
-const { registerUser, loginUser } = require('../controller/user')
+const { registerUser, loginUser, forgotPassword, resetPassword } = require('../controller/user')
 const { createIncidentReport, fetchAllIncidents, fetchUserIncidents } = require('../controller/report')
-const { checkUserExists, verifyToken, getWeatherReport } = require('../middleware')
-const { createUserSchema, loginUserSchema } = require('../models/user')
+const { checkUserExists, verifyToken, getWeatherReport, generateResetPasswordToken } = require('../middleware')
+const { createUserSchema, loginUserSchema, forgotPasswordSchema, resetPasswordSchema } = require('../models/user')
 const { createIncidentSchema } = require('../models/incidents')
 const validateData = require('../middleware/validation')
 
@@ -23,8 +23,22 @@ router.post(
 )
 
 router.post(
+    '/api/users/forgot-password',
+    validateData(forgotPasswordSchema, 'body'),
+    generateResetPasswordToken,
+    forgotPassword
+)
+
+router.post(
+    '/api/users/reset-password',
+    verifyToken('reset'),
+    validateData(resetPasswordSchema, 'body'),
+    resetPassword
+)
+
+router.post(
     '/api/user-incident_report', 
-    verifyToken, 
+    verifyToken('access'), 
     validateData(createIncidentSchema, 'body'),
     getWeatherReport, 
     createIncidentReport
@@ -37,7 +51,7 @@ router.get(
 
 router.get(
     '/api/user-incident_report', 
-    verifyToken, 
+    verifyToken('access'), 
     fetchUserIncidents
 )
 

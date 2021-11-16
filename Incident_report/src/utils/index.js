@@ -13,20 +13,20 @@ const comparePassword = async(password, userPassword) => {
     return isValid
 }
 
-const generateToken = async user => {
+const generateToken = async(user, type) => {
     const token = jwt.sign(
         { user_id: user.user_id, email: user.email },
-        process.env.TOKEN_KEY,
+        type === 'access' ? process.env.TOKEN_KEY : process.env.RESET_TOKEN_KEY,
         {
-        expiresIn: "2h",
+        expiresIn: type === 'access' ? '4h' : '1h',
         }
     )
     return token
 }
 
-const validateToken = async token => {
+const validateToken = async (token, type) => {
     try {
-        return jwt.verify(token, process.env.TOKEN_KEY)
+        return jwt.verify(token, type === 'access' ? process.env.TOKEN_KEY : process.env.RESET_TOKEN_KEY)
     } catch (err) {
         return false
     }

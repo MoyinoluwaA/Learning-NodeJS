@@ -19,7 +19,23 @@ const loginUserSchema = {
     message: 'Error logging in user'
 }
 
+const forgotPasswordSchema = {
+    schema: Joi.object().keys({
+        email: Joi.string().email().required()
+    }),
+    message: 'User not found'
+}
+
+const resetPasswordSchema = {
+    schema: Joi.object().keys({
+        password: Joi.string().required()
+    }),
+    message: 'User not found'
+}
+
 module.exports = {
     createUserSchema,
-    loginUserSchema
+    loginUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema
 }

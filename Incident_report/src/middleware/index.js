@@ -1,5 +1,5 @@
 const { getUser, fetchWeather } = require("../services")
-const { validateToken } = require("../utils")
+const { validateToken, generateToken } = require("../utils")
 
 const checkUserExists = (type) => async(req, res, next) => {
     try {
@@ -9,7 +9,7 @@ const checkUserExists = (type) => async(req, res, next) => {
 
         if (type === 'register') {
             if (user) {
-                return res.status(401).json({
+                return res.status(400).json({
                     status: 'fail',
                     message: 'User already exists. Log in',
                     data: []
@@ -36,9 +36,14 @@ const checkUserExists = (type) => async(req, res, next) => {
     }
 }
 
-const verifyToken = async(req, res, next) => {
+const verifyToken = (type) => async(req, res, next) => {
     try {
-        var token = req.headers['x-access-token']
+        let token;
+        type === 'access' 
+        ? 
+            token = req.headers['x-access-token']
+        :
+            token = req.query.token
     
         if (!token)
             return res.status(403).json({
@@ -46,7 +51,7 @@ const verifyToken = async(req, res, next) => {
                 message: 'No token provided.'
             })
         
-        const tokenValidated = await validateToken(token)
+        const tokenValidated = await validateToken(token, type)
         
         if (!tokenValidated) 
             return res.status(403).json({
@@ -94,8 +99,30 @@ const getWeatherReport = async(req, res, next) => {
 }
 
 
+const generateResetPasswordToken = async(req, res, next) => {
+    try {
+        const { body: { email } } = req
+        const [ user ] = await getUser(email)
+    
+        if (!user) 
+            res.status(404).json({
+                status: 'fail',
+                message: 'User not found'
+            })
+
+        const token = await generateToken(user, 'reset')
+        req.token = token
+        next()
+        
+    } catch (err) {
+        next(err)
+    }
+}
+
+
 module.exports = { 
     checkUserExists,
     verifyToken,
-    getWeatherReport
+    getWeatherReport,
+    generateResetPasswordToken
 }

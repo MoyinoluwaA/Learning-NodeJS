@@ -1,4 +1,4 @@
-const { createUser, validatePassword } = require('../services')
+const { createUser, validatePassword, updatePassword } = require('../services')
 
 const registerUser = async(req, res) => {
     try {
@@ -42,9 +42,42 @@ const loginUser = async(req, res) => {
     }
 }
 
+const forgotPassword = async(req, res, next) => {
+    try {
+        const { token } = req
+        res.status(200).json({
+            status: 'success',
+            message: 'token generated to reset password',
+            data: { token }
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+const resetPassword = async(req, res, next) => {
+    try {
+        const { body, id } = req
+        const user = await updatePassword(body.password, id)
+        const { password, ...updatedUser } = user
+
+        res.status(200).json({
+            status: 'success',
+            message: 'password reset successfully',
+            data: updatedUser
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
 const userController = {
     registerUser,
-    loginUser
+    loginUser,
+    forgotPassword,
+    resetPassword
 }
 
 module.exports = userController
