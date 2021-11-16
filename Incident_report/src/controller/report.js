@@ -32,8 +32,8 @@ const fetchAllIncidents = async(req, res) => {
 
 const fetchUserIncidents = async(req, res) => {
     try {
-        const { authorizedUser } = req
-        const userIncidentReports = await getUserIncident(authorizedUser)
+        const { id } = req
+        const userIncidentReports = await getUserIncident(id)
 
         res.status(200).json({
             status: 'success',
