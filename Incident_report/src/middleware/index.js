@@ -55,12 +55,12 @@ const verifyToken = async(req, res, next) => {
             })
         
         const { email, user_id } = tokenValidated
-        const isAuthorized = await getUser(email)
+        const [authorizedUser] = await getUser(email)
 
-        if (!isAuthorized) 
+        if (!authorizedUser) 
             return res.status(403).json({
                 status: 'fail',
-                message: 'Failed to authenticate token.'
+                message: 'Invalid credentials'
             })
         
         req.id = user_id
