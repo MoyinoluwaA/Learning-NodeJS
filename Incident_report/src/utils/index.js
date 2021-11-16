@@ -25,7 +25,11 @@ const generateToken = async user => {
 }
 
 const validateToken = async token => {
-    return jwt.verify(token, process.env.TOKEN_KEY)
+    try {
+        return jwt.verify(token, process.env.TOKEN_KEY)
+    } catch (err) {
+        return false
+    }
 }
 
 module.exports = {

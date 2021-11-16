@@ -47,7 +47,7 @@ const verifyToken = async(req, res, next) => {
             })
         
         const tokenValidated = await validateToken(token)
-    
+        
         if (!tokenValidated) 
             return res.status(403).json({
                 status: 'fail',
@@ -63,7 +63,7 @@ const verifyToken = async(req, res, next) => {
                 message: 'Failed to authenticate token.'
             })
         
-        req.authorizedUser = user_id
+        req.id = user_id
         next()
     }
     catch (err) {
@@ -73,7 +73,7 @@ const verifyToken = async(req, res, next) => {
 
 const getWeatherReport = async(req, res, next) => {
     try {
-        const { body, authorizedUser } = req        
+        const { body, id } = req        
         const { city, country } = body
 
         const weather = await fetchWeather(city, country)
@@ -84,9 +84,8 @@ const getWeatherReport = async(req, res, next) => {
                 message: 'Could not fetch weather for city and country'
             })
         
-        const { user_id } = authorizedUser
         req.weather = weather.data
-        req.user_id = user_id
+        req.user_id = id
         next()
     }
     catch (err) {
