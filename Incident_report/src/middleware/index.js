@@ -1,44 +1,36 @@
 const { getUser, fetchWeather } = require("../services")
 const { validateToken } = require("../utils")
 
-const checkUserExistsRegister = async(req, res, next) => {
-    try {
-        const { body: { email } } = req
-        const [ user ] = await getUser(email)
-        
-        if (user) {
-            return res.status(401).json({
-                status: 'fail',
-                message: 'User already exists. Log in',
-                data: []
-            })
-        }
-
-        next()
-    } 
-    catch (err) {
-        next(err)
-    }
-}
-
-const checkUserExistsLogin = async(req, res, next) => {
+const checkUserExists = (type) => async(req, res, next) => {
     try {
         const { body } = req
         const { email } = body
         const [ user ] = await getUser(email)
-        
-        if (!user) {
-            return res.status(401).json({
-                status: 'fail',
-                message: 'Invalid credentials',
-                data: []
-            })
-        }
 
-        req.user = user
-        req.password = body.password
-        next()
-    } 
+        if (type === 'register') {
+            if (user) {
+                return res.status(401).json({
+                    status: 'fail',
+                    message: 'User already exists. Log in',
+                    data: []
+                })
+            }
+    
+            next()
+        } else {
+            if (!user) {
+                return res.status(401).json({
+                    status: 'fail',
+                    message: 'Invalid credentials',
+                    data: []
+                })
+            }
+    
+            req.user = user
+            req.password = body.password
+            next()
+        }
+    }
     catch (err) {
         next(err)
     }
@@ -104,8 +96,7 @@ const getWeatherReport = async(req, res, next) => {
 
 
 module.exports = { 
-    checkUserExistsRegister,
-    checkUserExistsLogin,
+    checkUserExists,
     verifyToken,
     getWeatherReport
 }
