@@ -11,6 +11,7 @@ const createBlog = async(req, res, next) => {
         const [ newBlog ] = await addBlog(body)
 
         res.status(201).json({
+            code: 201,
             status: 'success',
             message: 'Added new blog',
             data: newBlog
@@ -26,6 +27,7 @@ const getBlogs = async(req, res, next) => {
         const blogs = await fetchAllBlogs()
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: 'Fetched all blogs',
             data: blogs
@@ -41,6 +43,7 @@ const getBlog = async(req, res) => {
         const { blog, id } = req
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: `Found the blog with id ${id}`,
             data: blog
@@ -57,6 +60,7 @@ const updateBlog = async(req, res, next) => {
         const [ updatedBlog ] = await updateBlogById(body, id)
     
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: `Updated the blog with id ${id}`,
             data: updatedBlog
@@ -73,8 +77,9 @@ const deleteBlog = async(req, res, next) => {
         const deletedBlog = await deleteBlogById(id)
 
         res.status(200).json({
+            code: 200,
             status: 'success',
-            message: `Deleted the blog at index ${id}`,
+            message: `Deleted the blog with id ${id}`,
             data: deletedBlog
         })
 
