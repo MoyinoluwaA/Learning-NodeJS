@@ -12,6 +12,7 @@ app.use(express.urlencoded({
 
 app.get('/', (req, res) => {
     res.status(200).json({
+        code: 200,
         status: 'Success',
         message: 'Welcome to bookstore API'
     })

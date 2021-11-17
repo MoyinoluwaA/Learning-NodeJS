@@ -6,6 +6,7 @@ const registerBook = async(req, res, next) => {
         const book  = await createBook(body, id)
 
         res.status(201).json({
+            code: 201,
             status: 'success',
             message: 'Book added successfully',
             data: book
@@ -22,6 +23,7 @@ const editBook = async(req, res, next) => {
         const updatedBook  = await updateBook(body, id, bookId)
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: 'Book updated successfully',
             data: updatedBook
@@ -37,6 +39,7 @@ const getBooks = async(req, res, next) => {
         const books = await fetchBooks()
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: 'Books fetched successfully',
             data: books
@@ -53,6 +56,7 @@ const registerUserBook = async(req, res, next) => {
         const bookDetails = await addUserBook(id, bookId)
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: `Book ${bookId} added to catalogue successfully`,
             data: { ...bookDetails, book}
@@ -69,6 +73,7 @@ const getUserCatalogue = async(req, res, next) => {
         const books = await fetchUserBooks(id)
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: 'Books in catalogue fetched successfully',
             data: books
@@ -85,6 +90,7 @@ const removeUserBook = async(req, res, next) => {
         const book = await deleteUserBook(id, bookId)
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             message: 'Deleted book in user catalogue successfully',
             data: book

@@ -7,6 +7,7 @@ const registerUser = async(req, res, next) => {
         const { password, ...user } = newUser
 
         res.status(201).json({
+            code: 201,
             status: 'success',
             message: 'User added successfully',
             data: user
@@ -30,7 +31,8 @@ const loginUser = async(req, res, next) => {
                 data: 'Error logging in user'
             })
         } else {
-            res.status(201).json({
+            res.status(200).json({
+                code: 200,
                 status: 'success',
                 message: 'User logged in successfully',
                 data:  { role: user.role, token }

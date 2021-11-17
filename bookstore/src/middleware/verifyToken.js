@@ -17,14 +17,14 @@ const verifyToken = (type, role) => async(req, res, next) => {
             })
         
         const tokenValidated = await validateToken(token, type)
-
-        if (role='all' && !tokenValidated) {
+          
+        if (role === 'all' && !tokenValidated) {
             return res.status(403).json({
                 status: 'fail',
                 message: 'You are not authorized'
             })
             
-        } else if ((role= 'admin' || 'customer') && !tokenValidated || tokenValidated.role !== role) {
+        } else if ((!tokenValidated || role !== tokenValidated.role) && role !== 'all') {
             return res.status(403).json({
                 status: 'fail',
                 message: 'You are not authorized'
